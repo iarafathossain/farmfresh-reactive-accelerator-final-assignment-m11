@@ -16,7 +16,7 @@ export const doFilter = (searchParams: {
     sort,
     status,
     page = "1",
-    limit = "6",
+    limit = "8",
   } = searchParams;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

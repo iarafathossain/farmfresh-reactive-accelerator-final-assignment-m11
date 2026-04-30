@@ -2,7 +2,7 @@
 
 import { IReviewFronted, TBaseUser } from "@/types";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ReviewItem from "../common/ReviewItem";
 import UserInfo from "../common/UserInfo";
 import Divider from "../ui/Divider";
@@ -31,13 +31,13 @@ const ProductDescription = ({
   const userId = session?.data?.user?.id;
 
   const loggedInUserReviews = reviews.filter(
-    (review) => review.customer.id === userId
+    (review) => review.customer.id === userId,
   );
 
   const totalReviews = reviews.length;
 
   const otherReviews = reviews.filter(
-    (review) => review.product === productId && review.customer.id !== userId
+    (review) => review.product === productId && review.customer.id !== userId,
   );
   const reviewsToShow = otherReviews.slice(0, showMore + 3);
 
@@ -121,16 +121,16 @@ const ProductDescription = ({
           ) : (
             <>
               {loggedInUserReviews.map((review, index) => (
-                <>
+                <Fragment key={review.id}>
                   <ReviewItem key={review.id} review={review} />
                   {index < reviews?.length - 1 && <Divider />}
-                </>
+                </Fragment>
               ))}
               {reviewsToShow.map((review, index) => (
-                <>
+                <Fragment key={review.id}>
                   <ReviewItem key={review.id} review={review} />
                   {index < reviewsToShow?.length - 1 && <Divider />}
-                </>
+                </Fragment>
               ))}
               {otherReviews.length > reviewsToShow.length && (
                 <div className="text-center mt-8">

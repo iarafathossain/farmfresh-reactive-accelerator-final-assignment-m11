@@ -34,8 +34,8 @@ const HomePage = async ({
       <WhyUs />
       {reviews.length > 0 && <Reviews reviews={reviews} />}
       <FAQ />
-      <Values />
       <Stats />
+      <Values />
       <Team />
       <CTA />
     </>

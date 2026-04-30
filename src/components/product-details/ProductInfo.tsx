@@ -134,6 +134,13 @@ const ProductInfo = ({ product }: { product: IProductFrontend }) => {
               value={quantity}
               min="1"
               max="50"
+              onChange={(e) => {
+                const v = Number(e.target.value || 1);
+                const clamped = Math.max(1, Math.min(50, isNaN(v) ? 1 : v));
+                setQuantity(clamped);
+                const avail = Math.max(0, product.stock - clamped);
+                setStock(avail);
+              }}
               className="w-20 text-center py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             />
             <button
@@ -177,10 +184,7 @@ const ProductInfo = ({ product }: { product: IProductFrontend }) => {
           <span>Add to Favorite</span>
         </button>
       </div>
-      <Link
-        href="/navigate-to-farmer-"
-        className="block bg-primary-50 dark:bg-primary-900 rounded-xl p-4 group"
-      >
+      <div className="block bg-primary-50 dark:bg-primary-900 rounded-xl p-4 group">
         <Link
           href={`/products/?farmerId=${product.farmer.id}`}
           className="flex items-center space-x-3"
@@ -201,7 +205,7 @@ const ProductInfo = ({ product }: { product: IProductFrontend }) => {
             </p>
           </div>
         </Link>
-      </Link>
+      </div>
     </div>
   );
 };

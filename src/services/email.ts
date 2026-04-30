@@ -29,6 +29,12 @@ export async function sendMail(opts: {
   html?: string;
   attachments?: MailAttachment[];
 }) {
+  const skip = "true";
+
+  if (skip) {
+    console.log("Email sending skipped. Email content:", opts);
+    return { messageId: "skipped" };
+  }
   const transporter = createTransport();
   const from = process.env.MAIL_FROM || process.env.SMTP_USER!;
   const info = await transporter.sendMail({ from, ...opts });

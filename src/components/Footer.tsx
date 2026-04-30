@@ -2,7 +2,7 @@ import { FaSeedling } from "react-icons/fa6";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-gray-900 text-white light:bg-gray-400 light:text-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -114,7 +114,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
           <p>
             &copy; 2025 FarmFresh - Local Farmer Booking. All rights reserved by
-            LWS.
+            Arafat Hossain.
           </p>
         </div>
       </div>

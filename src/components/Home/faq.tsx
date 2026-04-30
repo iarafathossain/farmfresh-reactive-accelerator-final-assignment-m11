@@ -71,7 +71,7 @@ function AccordionItem({
   const isOpen = openValue === value;
 
   return (
-    <div className="border-b border-green-500">
+    <div className="shadow-lg p-4 rounded-lg">
       <button
         onClick={() => onToggle(value)}
         aria-expanded={isOpen}
@@ -138,7 +138,7 @@ export function FAQ() {
             local farmers
           </p>
         </div>
-        <div className="border-t border-green-500">
+        <div>
           {items.map((item) => (
             <AccordionItem
               key={item.value}

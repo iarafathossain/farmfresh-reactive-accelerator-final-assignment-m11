@@ -36,12 +36,15 @@ const ReviewSection = ({
   const emptyStarts = 5 - fullStarts - (halfStar ? 1 : 0);
 
   // Rating counts:
-  const ratingCount = [1, 2, 3, 4, 5].reduce((acc, star) => {
-    acc[star] = reviews.filter(
-      (review) => Math.round(review.rating) === star
-    ).length;
-    return acc;
-  }, {} as Record<number, number>);
+  const ratingCount = [1, 2, 3, 4, 5].reduce(
+    (acc, star) => {
+      acc[star] = reviews.filter(
+        (review) => Math.round(review.rating) === star,
+      ).length;
+      return acc;
+    },
+    {} as Record<number, number>,
+  );
 
   // Get rating percentage:
   const getRatingPercentage = (count: number) => {
@@ -49,7 +52,7 @@ const ReviewSection = ({
   };
 
   const otherReviews = reviews.filter(
-    (review) => review.product === productId && review.customer.id !== userId
+    (review) => review.product === productId && review.customer.id !== userId,
   );
 
   const reviewsToShow = otherReviews.slice(0, showMore + 3);
@@ -140,7 +143,9 @@ const ReviewSection = ({
 
       {/* <!-- Individual Reviews --> */}
       <div className="space-y-6">
-        {loggedInUserReview && <ReviewItem review={loggedInUserReview} />}
+        {loggedInUserReview && (
+          <ReviewItem key={loggedInUserReview.id} review={loggedInUserReview} />
+        )}
 
         {reviewsToShow.map((review) => (
           <ReviewItem key={review.id} review={review} />
