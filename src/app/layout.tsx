@@ -1,5 +1,5 @@
 import Footer from "@/components/Footer";
-import Navbar from "@/components/navbar/Navbar";
+import NavbarWrapper from "@/components/navbar/NavbarWrapper";
 import BreadCrumb from "@/components/ui/BreadCrumb";
 import { connectDB } from "@/libs/connectDB";
 import CartProvider from "@/providers/CartProvider";
@@ -37,7 +37,7 @@ export default async function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SessionProvider>
             <CartProvider>
-              <Navbar />
+              <NavbarWrapper />
               {authInterceptedModel}
               <BreadCrumb />
               {children}

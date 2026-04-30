@@ -51,6 +51,14 @@ const config: Config = {
           "0%": { transform: "scale(0.8)" },
           "100%": { transform: "scale(1.01)" },
         },
+        "marquee-left-to-right": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        "marquee-right-to-left": {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
       },
       animation: {
         "bounce-skew": "bounce-skew 1s ease-in-out",
@@ -60,6 +68,8 @@ const config: Config = {
         "fade-right": "fade-right 500ms ease-in",
         "fade-horizontal": "fade-horizontal 2.5s linear infinite",
         "zoom-in": "zoom-in 0.5s ease-in",
+        "marquee-left-to-right": "marquee-left-to-right 30s linear infinite",
+        "marquee-right-to-left": "marquee-right-to-left 30s linear infinite",
       },
       colors: {
         primary: {

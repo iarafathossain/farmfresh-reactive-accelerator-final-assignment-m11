@@ -1,22 +1,25 @@
-import { getUserByEmail } from "@/queries/user";
-import { getUserSession } from "@/utils/getUserSession";
+"use client";
+
+import type { IUserSession } from "@/types";
 import Link from "next/link";
 import Dropdown from "../ui/Dropdown";
 
-const UserMenu = async () => {
-  const user = await getUserSession();
-  let avatar;
-  if (user?.email) {
-    const userFromDB = await getUserByEmail(user.email);
-    avatar = userFromDB?.image;
-  }
+interface UserMenuProps {
+  user: IUserSession | null;
+}
 
+const UserMenu = ({ user }: UserMenuProps) => {
   return (
     <div className="relative">
       {user ? (
-        <Dropdown image={avatar!} name={user.name!} />
+        <Dropdown image={user.image ?? ""} name={user.name!} />
       ) : (
-        <Link href="/login">Sign In</Link>
+        <Link
+          href="/login"
+          className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-600"
+        >
+          Sign In
+        </Link>
       )}
     </div>
   );

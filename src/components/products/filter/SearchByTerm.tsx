@@ -43,7 +43,7 @@ const SearchByTerm = ({ width }: { width?: string }) => {
   }, [params]);
 
   return (
-    <div className="relative">
+    <div className={`relative ${width === "w-full" ? "w-full" : ""}`}>
       <input
         type="text"
         id="term"
@@ -52,9 +52,7 @@ const SearchByTerm = ({ width }: { width?: string }) => {
         onChange={(e) => {
           handleChange(e.target.value.trim().replace(/\s+/g, " "));
         }}
-        className={`${
-          width ? width : "w-64"
-        } pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white`}
+        className={`${width ? width : "w-64"} min-w-0 pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white`}
       />
       <FaSearch className="absolute left-3 top-3 text-gray-400" />
     </div>

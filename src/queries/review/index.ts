@@ -18,7 +18,7 @@ export const getReviewsByProductId = async (productId: string) => {
 // Get orders by product id
 export const getSingleReviewByProductIdAndCustomerId = async (
   customerId: string,
-  productId: string
+  productId: string,
 ) => {
   await connectDB();
 
@@ -37,4 +37,17 @@ export const getReviewById = async (reviewId: string) => {
   const review = await Review.findById(reviewId).lean<IReviewDB>();
 
   return transformMongoDoc(review);
+};
+
+// Get all reviews for homepage
+export const getAllReviews = async () => {
+  await connectDB();
+
+  const reviews = await Review.find({})
+    .populate("customer")
+    .sort({ createdAt: -1 })
+    .limit(20)
+    .lean<IReviewFronted[]>();
+
+  return transformMongoDoc(reviews);
 };

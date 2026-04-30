@@ -18,7 +18,7 @@ const ManageProductFilter = () => {
   const router = useRouter();
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setQuery((prev) => ({ ...prev, [name]: value }));
@@ -68,7 +68,7 @@ const ManageProductFilter = () => {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <label
             htmlFor="term"
@@ -76,7 +76,7 @@ const ManageProductFilter = () => {
           >
             Search
           </label>
-          <SearchByTerm />
+          <SearchByTerm width="w-full" />
         </div>
         <div>
           <label

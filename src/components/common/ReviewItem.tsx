@@ -25,6 +25,7 @@ const ReviewItem = ({ review }: { review: IReviewFronted }) => {
   const [showCustomerInfo, setShowCustomerInfo] = useState<boolean>(false);
   const [showReviewAction, setShowReviewAction] = useState<boolean>(false);
   const [showUpdateReview, setShowUpdateReview] = useState<boolean>(false);
+  const [showFullComment, setShowFullComment] = useState<boolean>(false);
 
   const session = useSession();
   const loggedInUserId = session?.data?.user?.id;
@@ -34,7 +35,7 @@ const ReviewItem = ({ review }: { review: IReviewFronted }) => {
 
   const numberOfLikes = review.likes.filter((like) => like.isLike);
   const userHasLiked = numberOfLikes.some(
-    (like) => like.customer.toString() === loggedInUserId
+    (like) => like.customer.toString() === loggedInUserId,
   );
 
   const reviewActionRef = useRef<HTMLDivElement>(null);
@@ -177,10 +178,20 @@ const ReviewItem = ({ review }: { review: IReviewFronted }) => {
             />
           </Popup>
         )}
-        <p className="text-gray-700 dark:text-gray-300 mb-3">
-          {review.comment}
-        </p>
-        <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-gray-700 dark:text-gray-300 mb-2 relative">
+          <p
+            className={`text-justify ${showFullComment ? "" : "line-clamp-3"}`}
+          >
+            {review.comment}
+          </p>
+          <span
+            className="text-primary-500 text-xs hover:underline cursor-pointer bg-white dark:bg-gray-800 px-1 absolute -bottom-4 right-0"
+            onClick={() => setShowFullComment(!showFullComment)}
+          >
+            {showFullComment ? "Show less" : "Show more"}
+          </span>
+        </div>
+        <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mt-3">
           <button
             onClick={handleLikeToggle}
             type="button"

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FaEnvelope, FaUserPlus } from "react-icons/fa6";
 
 const CTA = () => {
@@ -19,13 +20,13 @@ const CTA = () => {
             <FaEnvelope className="mr-2" />
             Contact Us
           </a>
-          <a
-            href="register.html"
+          <Link
+            href="/register"
             className="inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg font-medium transition"
           >
             <FaUserPlus className="mr-2" />
             Join as Farmer
-          </a>
+          </Link>
         </div>
       </div>
     </div>

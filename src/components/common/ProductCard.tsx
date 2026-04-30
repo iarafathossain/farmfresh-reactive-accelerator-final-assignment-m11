@@ -42,7 +42,7 @@ const ProductCard = ({
       product.reviews.length;
 
   const cartItem = cart?.items?.find(
-    (item) => item?.product?.id === product.id
+    (item) => item?.product?.id === product.id,
   );
   const remainingStock = product.stock - (cartItem?.quantity ?? 1);
 
@@ -51,7 +51,7 @@ const ProductCard = ({
   const { err, catchErr } = useCatchErr();
 
   const isInCart = cart?.items?.some(
-    (item) => item?.product?.id === product.id
+    (item) => item?.product?.id === product.id,
   );
 
   const isFavorite = favoriteList?.includes(product.id);
@@ -78,7 +78,7 @@ const ProductCard = ({
         showToast(
           `${product.name} failed to ${
             product.isActive ? "inactive" : "active"
-          }`
+          }`,
         );
       }
     }
@@ -93,7 +93,7 @@ const ProductCard = ({
 
   return (
     <form
-      className={`bg-white dark:bg-gray-800 group rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative 
+      className={`bg-white dark:bg-gray-800 group rounded-2xl hover:shadow-lg hover:shadow-green-300 overflow-hidden transition-all duration-300 relative 
       ${
         viewType === "LIST"
           ? "flex flex-col sm:flex-row items-center gap-4 p-4"
@@ -175,7 +175,7 @@ const ProductCard = ({
             <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
               ৳
               {Math.round(
-                product?.price - (product?.discountRate / 100) * product.price
+                product?.price - (product?.discountRate / 100) * product.price,
               )}
             </span>
             <span className="text-sm text-gray-500 dark:text-gray-400">

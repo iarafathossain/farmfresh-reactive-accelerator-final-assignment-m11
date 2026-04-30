@@ -16,7 +16,7 @@ const Hero = () => {
   const router = useRouter();
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setQuery((prev) => ({ ...prev, [name]: value }));
@@ -59,7 +59,7 @@ const Hero = () => {
 
           {/* <!-- Search Bar --> */}
           <div className="max-w-2xl mx-auto mb-8">
-            <div className="flex rounded-lg overflow-hidden shadow-lg">
+            <div className="flex flex-wrap rounded-lg overflow-hidden shadow-lg">
               <input
                 type="text"
                 name="term"
@@ -72,7 +72,7 @@ const Hero = () => {
                 name="category"
                 value={query.category}
                 onChange={handleChange}
-                className="px-4 py-4 text-gray-900 border-l border-gray-300 focus:outline-none bg-white"
+                className="px-4 py-4 text-gray-900 border-l border-gray-300 focus:outline-none bg-white flex-1 sm:flex-none"
               >
                 <option>All Categories</option>
                 <option value="vegetables">Vegetables</option>
