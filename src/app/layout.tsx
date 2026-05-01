@@ -1,16 +1,16 @@
 import Footer from "@/components/Footer";
 import NavbarWrapper from "@/components/navbar/NavbarWrapper";
-import { connectDB } from "@/libs/connectDB";
 import ClientProviders from "@/providers/ClientProviders";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import React from "react";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!;
+const BASE_URL = getBaseUrl();
 
 //TODO: Complete google search console verification and add the token in metadata.verification.google
 
@@ -112,7 +112,7 @@ export const metadata: Metadata = {
   },
 
   // ── Manifest ──────────────────────────────────────────────────────────────
-  manifest: "/site.webmanifest",
+  //   manifest: "/site.webmanifest",
 
   // ── Verification (add your real tokens) ──────────────────────────────────
   verification: {
@@ -168,8 +168,6 @@ export default async function RootLayout({
   children: React.ReactNode;
   authInterceptedModel: React.ReactNode;
 }>) {
-  await connectDB();
-
   return (
     <html lang="en">
       <head>

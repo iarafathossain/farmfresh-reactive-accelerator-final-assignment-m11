@@ -1,10 +1,5 @@
+import { env } from "@/config/env";
 import mongoose from "mongoose";
-
-const MONGO_CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING;
-
-if (!MONGO_CONNECTION_STRING) {
-  throw new Error("Please define the mongo connection string in the .env file");
-}
 
 let cached = global.mongoose;
 
@@ -16,7 +11,7 @@ export const connectDB = async () => {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGO_CONNECTION_STRING, {
+    cached.promise = mongoose.connect(env.mongoConnectionString, {
       bufferCommands: false,
     });
   }

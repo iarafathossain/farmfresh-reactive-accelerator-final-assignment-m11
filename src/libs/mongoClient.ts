@@ -1,13 +1,8 @@
 // This approach is taken from https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
 import { MongoClient, ServerApiVersion } from "mongodb";
+import { env } from "@/config/env";
 
-if (!process.env.MONGO_CONNECTION_STRING) {
-  throw new Error(
-    'Invalid/Missing environment variable: "MONGO_CONNECTION_STRING"'
-  );
-}
-
-const uri = process.env.MONGO_CONNECTION_STRING;
+const uri = env.mongoConnectionString;
 const options = {
   serverApi: {
     version: ServerApiVersion.v1,

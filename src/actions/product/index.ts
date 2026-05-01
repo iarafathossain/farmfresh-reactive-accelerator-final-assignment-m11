@@ -17,6 +17,7 @@ import {
   TPaymentData,
 } from "@/types";
 import { catchErr } from "@/utils/catchErr";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 import { getUserSession } from "@/utils/getUserSession";
 import { transformMongoDoc } from "@/utils/transformMongoDoc";
 import { validateAddProductForm } from "@/validations/validateAddProductForm";
@@ -458,7 +459,7 @@ export const doPayment = async (
 
     const order = await getOrderById(created._id.toString());
 
-    await fetch(`${process.env.BASE_URL}/api/send-email/order-invoice`, {
+    await fetch(`${getBaseUrl()}/api/send-email/order-invoice`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -535,7 +536,7 @@ export const doUpdateOrderStatus = async (
     const transformOrder = transformMongoDoc(updatedOrder);
 
     // notify by the email
-    await fetch(`${process.env.BASE_URL}/api/send-email/order-status-update`, {
+    await fetch(`${getBaseUrl()}/api/send-email/order-status-update`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

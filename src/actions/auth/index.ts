@@ -20,6 +20,7 @@ import { validateRegistrationForm } from "@/validations/validateRegistrationForm
 import { validateResetForm } from "@/validations/validateResetForm";
 import bcrypt from "bcryptjs";
 import { getUserByEmail } from "./../../queries/user/index";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 // Perform registration
 export const doRegistration = async (formData: FormData) => {
@@ -280,16 +281,13 @@ export const doResetPassword = async (formData: FormData) => {
     const userName =
       isExist.name ?? isExist.firstName + " " + isExist?.lastName;
 
-    const res = await fetch(
-      `${process.env.BASE_URL}/api/send-email/send-reset-password`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, userName }),
-      }
-    );
+    const res = await fetch(`${getBaseUrl()}/api/send-email/send-reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, userName }),
+    });
 
     if (!res.ok) {
       throw new Error("Failed to send reset key link.");
@@ -360,7 +358,7 @@ export const doVerifyResetKey = async (
     await Reset.findByIdAndDelete(isExist._id);
 
     // send success mail
-    await fetch(`${process.env.BASE_URL}/api/send-email/send-reset-success`, {
+    await fetch(`${getBaseUrl()}/api/send-email/send-reset-success`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

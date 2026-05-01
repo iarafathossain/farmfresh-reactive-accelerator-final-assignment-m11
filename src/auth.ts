@@ -1,3 +1,4 @@
+import { env } from "@/config/env";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import bcrypt from "bcryptjs";
 import type { Account, Session, User } from "next-auth";
@@ -26,14 +27,14 @@ interface ExtendedSession extends Session {
 }
 
 const refreshAccessToken = async (
-  token: ExtendedToken
+  token: ExtendedToken,
 ): Promise<ExtendedToken> => {
   try {
     const url =
       "https://oauth2.googleapis.com/token?" +
       new URLSearchParams({
-        client_id: process.env.GOOGLE_CLIENT_ID as string,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET as string,
+        client_id: env.auth.googleClientId,
+        client_secret: env.auth.googleClientSecret,
         grant_type: "refresh_token",
         refresh_token: token.refresh_token as string,
       });
@@ -78,8 +79,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: MongoDBAdapter(client) as unknown as Adapter,
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      clientId: env.auth.googleClientId,
+      clientSecret: env.auth.googleClientSecret,
       authorization: {
         params: {
           prompt: "consent",
@@ -94,7 +95,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
       },
       async authorize(
-        credentials: Partial<Record<"email" | "password", unknown>>
+        credentials: Partial<Record<"email" | "password", unknown>>,
       ): Promise<User | null> {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
