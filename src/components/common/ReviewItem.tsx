@@ -35,7 +35,7 @@ const ReviewItem = ({ review }: { review: IReviewFronted }) => {
 
   const numberOfLikes = review.likes.filter((like) => like.isLike);
   const userHasLiked = numberOfLikes.some(
-    (like) => like.customer.toString() === loggedInUserId,
+    (like) => like.customer && like.customer.toString() === loggedInUserId,
   );
 
   const reviewActionRef = useRef<HTMLDivElement>(null);
