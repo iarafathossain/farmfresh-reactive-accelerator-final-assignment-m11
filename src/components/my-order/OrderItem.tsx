@@ -3,7 +3,7 @@
 import { useBalance } from "@/hooks/useBalance";
 import { IOrderFronted, IReview } from "@/types";
 import { getFormattedDate } from "@/utils/getFormattedDate";
-import { getStatusLabel } from "@/utils/getStatusLavel";
+import { getStatusLabel } from "@/utils/getStatusLabel";
 import { getStatusStyles } from "@/utils/getStatusStyles";
 import Image from "next/image";
 import { useState } from "react";
@@ -43,8 +43,8 @@ const OrderItem = ({ order, role }: OrderItemProps) => {
     order.status === "DELIVERED"
       ? "text-primary-500"
       : order.status === "CANCELLED"
-      ? "text-red-500"
-      : "text-yellow-500";
+        ? "text-red-500"
+        : "text-yellow-500";
 
   // ===== Update Status Buttons =====
   const renderUpdateButtons = () => {
@@ -130,7 +130,7 @@ const OrderItem = ({ order, role }: OrderItemProps) => {
             <div className="flex items-center space-x-4">
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusStyles(
-                  order.status
+                  order.status,
                 )}`}
               >
                 {getStatusIcon(order.status)}

@@ -1,9 +1,8 @@
 "use client";
 
 import { doCredentialLogIn } from "@/actions/auth";
-import { useCatchErr } from "@/hooks/useCatchErr";
 import { useForm } from "@/hooks/useForm";
-import { showToast } from "@/providers/ToastProvider";
+import { useFormSubmit } from "@/hooks/useFormSubmit";
 import { IUserLoginForm } from "@/types";
 import { validateLoginForm } from "@/validations/validateLoginForm";
 import { useState } from "react";
@@ -19,9 +18,14 @@ const initialValues: IUserLoginForm = {
 };
 
 const LoginForm = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const { catchErr, err } = useCatchErr();
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const { loading, submitForm } = useFormSubmit<IUserLoginForm>({
+    successMessage: "Login successful!",
+    onSuccess: () => {
+      resetForm();
+      window.location.href = "/my-orders";
+    },
+  });
 
   const {
     values: formValues,
@@ -30,45 +34,18 @@ const LoginForm = () => {
     errors,
     handleBlur,
     handleChange,
-    handleSubmit,
+    handleSubmit: formikHandleSubmit,
   } = useForm<IUserLoginForm>({
     initialValues,
     validate: validateLoginForm,
     onSubmit: async (values) => {
-      setLoading(true);
-      try {
-        const formData = new FormData();
-
-        for (const [key, value] of Object.entries(values)) {
-          formData.append(key, value);
-        }
-        const result = await doCredentialLogIn(formData);
-
-        if (result?.error) {
-          console.log(result, "result-login-form");
-          showToast("Wrong Credentials!", "ERROR");
-          setLoading(false);
-        }
-        resetForm();
-        setLoading(false);
-        window.location.href = "/my-orders";
-      } catch (error) {
-        catchErr(error);
-        if (err) {
-          showToast(err, "ERROR");
-        } else {
-          showToast("Fail to login.", "ERROR");
-        }
-        setLoading(false);
-      } finally {
-        setLoading(false);
-      }
+      await submitForm(values, doCredentialLogIn);
     },
   });
 
   return (
     <>
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-6" onSubmit={formikHandleSubmit}>
         <Field error={touched.email && errors.email}>
           <label
             htmlFor="email"

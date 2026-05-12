@@ -7,7 +7,7 @@ import { Product } from "@/models/productModel";
 import { getOrderById } from "@/queries/order";
 import { createProduct, getProduct } from "@/queries/product";
 import { getUserByEmail } from "@/queries/user";
-import { uploadImage } from "@/services/UploadImag";
+import { uploadImage } from "@/services/UploadImage";
 import {
   IProductBase,
   IProductForm,

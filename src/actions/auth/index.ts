@@ -5,7 +5,7 @@ import { connectDB } from "@/libs/connectDB";
 import { Reset } from "@/models/resetPasswordModel";
 import { User } from "@/models/userModel";
 import { createUser } from "@/queries/user";
-import { uploadImage } from "@/services/UploadImag";
+import { uploadImage } from "@/services/UploadImage";
 import {
   IResetForm,
   IResetPassword,
@@ -13,6 +13,7 @@ import {
   IUserRegistrationForm,
 } from "@/types";
 import { catchErr } from "@/utils/catchErr";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 import { getUserSession } from "@/utils/getUserSession";
 import { transformMongoDoc } from "@/utils/transformMongoDoc";
 import { validateChangePassword } from "@/validations/validateChangePassword";
@@ -20,7 +21,6 @@ import { validateRegistrationForm } from "@/validations/validateRegistrationForm
 import { validateResetForm } from "@/validations/validateResetForm";
 import bcrypt from "bcryptjs";
 import { getUserByEmail } from "./../../queries/user/index";
-import { getBaseUrl } from "@/utils/getBaseUrl";
 
 // Perform registration
 export const doRegistration = async (formData: FormData) => {
@@ -175,7 +175,7 @@ export const doUpdateProfile = async (formData: FormData) => {
     }
 
     for (const [key, value] of Object.entries(
-      Object.fromEntries(formData.entries())
+      Object.fromEntries(formData.entries()),
     )) {
       if (
         typeof value === "string" &&
@@ -190,11 +190,11 @@ export const doUpdateProfile = async (formData: FormData) => {
     const updatedUserWithMetaData = await User.findByIdAndUpdate(
       { _id: existingUser.id },
       userDataForUpdate,
-      { new: true }
+      { new: true },
     ).lean();
 
     const updatedUserWithoutMetaData = transformMongoDoc(
-      updatedUserWithMetaData
+      updatedUserWithMetaData,
     );
 
     return { success: true, updatedUser: updatedUserWithoutMetaData };
@@ -206,7 +206,7 @@ export const doUpdateProfile = async (formData: FormData) => {
 
 // Perform change password
 export const doChangePassword = async (
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; message: string }> => {
   await connectDB();
   try {
@@ -240,13 +240,13 @@ export const doChangePassword = async (
 
     if (newPassword !== newConfirmPassword) {
       throw new Error(
-        "Please match the new password with new confirm password."
+        "Please match the new password with new confirm password.",
       );
     }
 
     const isMatch = await bcrypt.compare(
       currentPassword,
-      existingUser.password
+      existingUser.password,
     );
 
     if (!isMatch) {
@@ -257,7 +257,7 @@ export const doChangePassword = async (
 
     await User.findOneAndUpdate(
       { email: existingUser.email },
-      { password: hashedPassword }
+      { password: hashedPassword },
     );
 
     return { success: true, message: "Password updated successfully." };
@@ -281,13 +281,16 @@ export const doResetPassword = async (formData: FormData) => {
     const userName =
       isExist.name ?? isExist.firstName + " " + isExist?.lastName;
 
-    const res = await fetch(`${getBaseUrl()}/api/send-email/send-reset-password`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${getBaseUrl()}/api/send-email/send-reset-password`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, userName }),
       },
-      body: JSON.stringify({ email, userName }),
-    });
+    );
 
     if (!res.ok) {
       throw new Error("Failed to send reset key link.");
@@ -304,7 +307,7 @@ export const doResetPassword = async (formData: FormData) => {
 
 // Perform verify reset key
 export const doVerifyResetKey = async (
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; message: string }> => {
   await connectDB();
   try {
@@ -351,7 +354,7 @@ export const doVerifyResetKey = async (
     await User.findOneAndUpdate(
       { email: formValues.email },
       { password: hashPassword },
-      { new: true }
+      { new: true },
     );
 
     // delete this reset key

@@ -2,9 +2,8 @@
 
 import { doRegistration } from "@/actions/auth";
 import { districts } from "@/data";
-import { useCatchErr } from "@/hooks/useCatchErr";
 import { useForm } from "@/hooks/useForm";
-import { showToast } from "@/providers/ToastProvider";
+import { useFormSubmit } from "@/hooks/useFormSubmit";
 import { IUserRegistrationForm } from "@/types";
 
 import { validateRegistrationForm } from "@/validations/validateRegistrationForm";
@@ -40,10 +39,15 @@ const RegisterForm = () => {
   const [showPass, setShowPass] = useState<boolean>(false);
   const [showConfirmPass, setShowConfirmPass] = useState<boolean>(false);
   const fileUploadRef = useRef<HTMLInputElement | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const { err, setErr, catchErr } = useCatchErr();
   const router = useRouter();
+
+  const { loading, error, submitForm } = useFormSubmit<IUserRegistrationForm>({
+    successMessage: "Registration successful! Redirecting to login...",
+    onSuccess: () => {
+      resetForm();
+      router.replace("/login");
+    },
+  });
 
   const {
     values: formValues,
@@ -52,45 +56,19 @@ const RegisterForm = () => {
     touched,
     handleChange,
     handleBlur,
-    handleSubmit,
+    handleSubmit: formikHandleSubmit,
   } = useForm<IUserRegistrationForm>({
     initialValues,
     validate: (values) => validateRegistrationForm(values, "REGISTRATION"),
     onSubmit: async (values) => {
-      setLoading(true);
-      try {
-        const formData = new FormData();
-
-        for (const [key, value] of Object.entries(values)) {
-          if (Array.isArray(value)) {
-            value.forEach((v) =>
-              formData.append(key, v instanceof File ? v : String(v))
-            );
-          } else {
-            formData.append(key, value);
-          }
-        }
-        const response = await doRegistration(formData);
-        if (!response.success) {
-          showToast("Registration Failed", "ERROR");
-          setErr(response.error!);
-          setLoading(false);
-          return;
-        }
-        resetForm();
-        router.replace("/login");
-        setLoading(false);
-      } catch (error) {
-        catchErr(error);
-        setLoading(false);
-      }
+      await submitForm(values, doRegistration);
     },
   });
 
   return (
     <>
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        {err && <p className="text-red-500 text-sm text-center">{err}</p>}
+      <form className="space-y-6" onSubmit={formikHandleSubmit}>
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         <Field error={touched.role && errors.role}>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
             I want to register as:

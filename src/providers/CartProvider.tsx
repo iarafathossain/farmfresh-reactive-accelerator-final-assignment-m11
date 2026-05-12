@@ -2,45 +2,71 @@
 
 import { CartContext } from "@/context";
 import { cartReducer, initialCartState } from "@/reducers/cartReducer";
-import { IProductFrontend } from "@/types";
-import { catchErr } from "@/utils/catchErr";
+import { createCartService } from "@/services/CartService";
+import { ICartFrontend, IProductFrontend } from "@/types";
 import { fetchData } from "@/utils/fetchData";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ReactNode, useEffect, useReducer, useState } from "react";
+import { ReactNode, useEffect, useReducer, useRef, useState } from "react";
 import { showToast } from "./ToastProvider";
 
 const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(cartReducer, initialCartState);
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [err, setErr] = useState<string | null>(null);
+  type DispatchAction = Parameters<typeof dispatch>[0];
 
   const router = useRouter();
-
-  // load initial cart from api
   const { data: session, status } = useSession();
   const customerId = session?.user?.id;
+  const cartServiceRef = useRef<ReturnType<typeof createCartService> | null>(
+    null,
+  );
 
+  // Initialize cart service
   useEffect(() => {
-    if (status !== "authenticated") return;
     if (!customerId) return;
 
-    const fetchCart = async () => {
+    const service = createCartService({
+      customerId,
+      onDispatch: (action) => {
+        dispatch(action as unknown as DispatchAction);
+      },
+      onError: (error) => {
+        setErr(error);
+        showToast(error, "ERROR");
+      },
+      onFetchCart: () => fetchData(`/api/cart?customerId=${customerId}`),
+    });
+
+    cartServiceRef.current = service;
+  }, [customerId]);
+
+  // Load initial cart
+  useEffect(() => {
+    if (status !== "authenticated" || !customerId || !cartServiceRef.current)
+      return;
+
+    const loadCart = async () => {
       try {
-        const data = await fetchData(`/api/cart?customerId=${customerId}`);
-        dispatch({ type: "SET_CART", payload: data?.cart });
-      } catch (error) {
-        const errMsg = catchErr(error);
-        setErr(errMsg.error);
+        const data = (await cartServiceRef.current!.fetchInitialCart()) as {
+          cart?: ICartFrontend;
+        };
+        if (data?.cart) {
+          dispatch({ type: "SET_CART", payload: data.cart });
+        }
+      } catch {
+        // Error already handled by service
       }
     };
-    fetchCart();
+
+    loadCart();
   }, [status, customerId]);
 
-  // helper to update both UI+DB
+  // Main cart update handler
   const updateCart = async (
     action: "ADD_ITEM" | "INCREMENT" | "DECREMENT" | "REMOVE_ITEM",
-    payload: IProductFrontend | string
+    payload: IProductFrontend | string,
   ): Promise<void> => {
     if (status === "loading") {
       showToast("Please wait, checking login...", "WARNING");
@@ -58,50 +84,27 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    // Optimistic UI
-    if (action === "ADD_ITEM") {
-      const product = payload as IProductFrontend;
-      setLoading((prev) => ({ ...prev, [product.id]: true }));
-      dispatch({ type: "ADD_ITEM", payload: { product: product } });
+    if (!cartServiceRef.current) return;
 
-      try {
-        await fetch(`/api/cart`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ customerId, productId: product.id, action }),
-        });
-      } catch (error) {
-        const data = await fetchData(`/api/cart?customerId=${customerId}`);
-        dispatch({ type: "SET_CART", payload: data?.cart });
-        const errMsg = catchErr(error);
-        setErr(errMsg.error);
-      } finally {
-        setLoading((prev) => ({ ...prev, [product.id]: false }));
-      }
-    } else {
-      const productId = payload as string;
-
-      setLoading((prev) => ({ ...prev, productId: true }));
-      dispatch({ type: action, payload: { productId } });
-
-      try {
-        await fetch(`/api/cart`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ customerId, productId, action }),
-        });
-      } catch (error) {
-        const data = await fetchData(`/api/cart?customerId=${customerId}`);
-        dispatch({ type: "SET_CART", payload: data?.cart });
-        const errMsg = catchErr(error);
-        setErr(errMsg.error);
-      } finally {
-        setLoading((prev) => ({ ...prev, productId: false }));
-      }
+    // Delegate to appropriate service method
+    switch (action) {
+      case "ADD_ITEM":
+        await cartServiceRef.current.addItem(
+          payload as IProductFrontend,
+          setLoading,
+        );
+        break;
+      case "INCREMENT":
+      case "DECREMENT":
+        await cartServiceRef.current.updateQuantity(
+          action,
+          payload as string,
+          setLoading,
+        );
+        break;
+      case "REMOVE_ITEM":
+        await cartServiceRef.current.removeItem(payload as string, setLoading);
+        break;
     }
   };
 

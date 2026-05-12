@@ -3,7 +3,7 @@ import "@/models/reviewModel";
 import { connectDB } from "@/libs/connectDB";
 import { Product } from "@/models/productModel";
 import { IProductBase, IProductFrontend } from "@/types";
-import { doFilter } from "@/utils/doFilter";
+import { buildProductFilter, filterProductsByLocation, getLocationFilter } from "@/services/ProductFilterService";
 import { transformMongoDoc } from "@/utils/transformMongoDoc";
 
 // Create a product
@@ -28,7 +28,7 @@ export const getProducts = async (searchParams: {
   await connectDB();
 
   const { filter, sortOptions, skip, limitNum, pageNum } =
-    doFilter(searchParams);
+    buildProductFilter(searchParams);
 
   // query plus count docs
   const [products, totalProducts] = await Promise.all([
@@ -44,15 +44,9 @@ export const getProducts = async (searchParams: {
 
   const totalPages = Math.ceil(totalProducts / limitNum);
 
-  let filteredProducts = products;
-
-  if (searchParams.location) {
-    filteredProducts = products.filter((product) =>
-      product?.farmer?.farmDistrict
-        ?.toLowerCase()
-        ?.includes(searchParams.location!.toLowerCase())
-    );
-  }
+  // Apply client-side location filter (necessary for farmer subdocument)
+  const locationFilter = getLocationFilter(searchParams);
+  const filteredProducts = filterProductsByLocation(products, locationFilter);
 
   return {
     products: transformMongoDoc(filteredProducts),
@@ -82,7 +76,7 @@ export const getProductsByFarmerId = async (
   await connectDB();
 
   const { filter, pageNum, limitNum, skip, sortOptions } =
-    doFilter(searchParams);
+    buildProductFilter(searchParams);
 
   const [products, totalProducts] = await Promise.all([
     Product.find({ farmer: farmerId, ...filter })
@@ -97,15 +91,9 @@ export const getProductsByFarmerId = async (
 
   const totalPages = Math.ceil(totalProducts / limitNum);
 
-  let filteredProducts = products;
-
-  if (searchParams.location) {
-    filteredProducts = products.filter((product) =>
-      product?.farmer?.farmDistrict
-        ?.toLowerCase()
-        ?.includes(searchParams.location!.toLowerCase())
-    );
-  }
+  // Apply client-side location filter (necessary for farmer subdocument)
+  const locationFilter = getLocationFilter(searchParams);
+  const filteredProducts = filterProductsByLocation(products, locationFilter);
 
   return {
     products: transformMongoDoc(filteredProducts),

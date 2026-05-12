@@ -1,9 +1,8 @@
 "use client";
 
 import { doChangePassword } from "@/actions/auth";
-import { useCatchErr } from "@/hooks/useCatchErr";
 import { useForm } from "@/hooks/useForm";
-import { showToast } from "@/providers/ToastProvider";
+import { useFormSubmit } from "@/hooks/useFormSubmit";
 import { validateChangePassword } from "@/validations/validateChangePassword";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -20,9 +19,13 @@ const ChangePassword = () => {
   const [showCurrentPass, setShowCurrentPass] = useState<boolean>(false);
   const [showNewPass, setShowNewPass] = useState<boolean>(false);
   const [showNewConfirmPass, setShowNewConfirmPass] = useState<boolean>(false);
-  const [loading, setLoading] = useState(false);
 
-  const { err, catchErr } = useCatchErr();
+  const { loading, submitForm } = useFormSubmit({
+    successMessage: "Password updated successfully!",
+    onSuccess: () => {
+      resetForm();
+    },
+  });
 
   const {
     values: formValues,
@@ -30,43 +33,17 @@ const ChangePassword = () => {
     errors,
     handleChange,
     handleBlur,
-    handleSubmit,
+    handleSubmit: formikHandleSubmit,
     resetForm,
   } = useForm({
     initialValues,
     validate: validateChangePassword,
-    onSubmit: async () => {
-      setLoading(true);
-      try {
-        const formData = new FormData();
-
-        for (const [key, value] of Object.entries(formValues)) {
-          formData.append(key, value);
-        }
-
-        const response = await doChangePassword(formData);
-
-        if (!response.success) {
-          showToast(response.message, "ERROR");
-          setLoading(false);
-          return;
-        }
-        showToast(response.message, "SUCCESS");
-        resetForm();
-        setLoading(false);
-      } catch (error) {
-        catchErr(error);
-        if (err) {
-          showToast(err, "ERROR");
-        } else {
-          showToast("Failed to update password.", "ERROR");
-        }
-        setLoading(false);
-      }
+    onSubmit: async (values) => {
+      await submitForm(values, doChangePassword);
     },
   });
   return (
-    <form className="space-y-3" onSubmit={handleSubmit}>
+    <form className="space-y-3" onSubmit={formikHandleSubmit}>
       <Field error={touched.currentPassword && errors.currentPassword}>
         <label
           htmlFor="currentPassword"

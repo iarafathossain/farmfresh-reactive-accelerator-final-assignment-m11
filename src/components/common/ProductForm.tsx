@@ -1,9 +1,8 @@
 "use client";
 
 import { doAddingProduct, doEditingProduct } from "@/actions/product";
-import { useCatchErr } from "@/hooks/useCatchErr";
 import { useForm } from "@/hooks/useForm";
-import { showToast } from "@/providers/ToastProvider";
+import { useFormSubmit } from "@/hooks/useFormSubmit";
 import { IProductForm } from "@/types";
 import { validateAddProductForm } from "@/validations/validateAddProductForm";
 import Image from "next/image";
@@ -16,7 +15,7 @@ import Popup from "../ui/Popup";
 import Field from "./Field";
 
 type ProductFormProps<
-  T extends { url: string; public_id: string; id?: string }[] | File[]
+  T extends { url: string; public_id: string; id?: string }[] | File[],
 > = {
   initialValues: IProductForm<T>;
   mode: "ADD" | "EDIT";
@@ -35,20 +34,29 @@ const features = [
 ];
 
 const ProductForm = <
-  T extends { url: string; public_id: string; id?: string }[] | File[]
+  T extends { url: string; public_id: string; id?: string }[] | File[],
 >({
   initialValues,
   mode,
   editProductId,
 }: ProductFormProps<T>) => {
-  const { err, setErr, catchErr } = useCatchErr();
-  const [loading, setLoading] = useState<boolean>(false);
-
   const [showConfirmPopup, setShowConfirmPopup] = useState<boolean>(false);
   const [deletedImage, setDeletedImage] = useState<string>("");
   const [publicId, setPublicId] = useState<string>("");
 
   const router = useRouter();
+
+  const { loading, error, submitForm } = useFormSubmit<IProductForm<T>>({
+    successMessage:
+      mode === "ADD"
+        ? "Product added successfully!"
+        : "Product updated successfully!",
+    onSuccess: () => {
+      if (mode === "EDIT") {
+        router.refresh();
+      }
+    },
+  });
 
   const {
     values: formValues,
@@ -57,61 +65,26 @@ const ProductForm = <
     setValues,
     handleChange,
     handleBlur,
-    handleSubmit,
+    handleSubmit: formikHandleSubmit,
   } = useForm<IProductForm<T>>({
     initialValues,
     validate: validateAddProductForm,
     onSubmit: async (values) => {
-      setLoading(true);
-      try {
-        const formData = new FormData();
-
-        for (const [key, value] of Object.entries(values)) {
-          if (Array.isArray(value)) {
-            value.forEach((v) =>
-              formData.append(key, v instanceof File ? v : String(v))
-            );
-          } else {
-            formData.append(key, String(value));
-          }
-        }
-
+      const submitAction = async (formData: FormData) => {
         if (mode === "ADD") {
-          const response = await doAddingProduct(formData);
-
-          if (!response.success) {
-            showToast(response.error, "ERROR");
-            setErr(response.error);
-            setLoading(false);
-            return;
-          }
-          showToast(`${response.message}`, "SUCCESS");
-          setLoading(false);
+          return await doAddingProduct(formData);
+        } else {
+          return await doEditingProduct(formData, editProductId!);
         }
-
-        if (mode === "EDIT") {
-          const response = await doEditingProduct(formData, editProductId!);
-          if (!response.success) {
-            showToast(response.error, "ERROR");
-            setErr(response.error);
-            setLoading(false);
-            return;
-          }
-          showToast(response.message, "SUCCESS");
-          setLoading(false);
-          router.refresh();
-        }
-      } catch (error) {
-        catchErr(error);
-        setLoading(false);
-      }
+      };
+      await submitForm(values, submitAction);
     },
   });
 
   //   remove one file by its index
   const removeFile = (
     index: number,
-    image: { url: string; public_id: string } | File
+    image: { url: string; public_id: string } | File,
   ) => {
     if (image instanceof File) {
       setValues((prev) => ({
@@ -140,8 +113,12 @@ const ProductForm = <
 
   return (
     <>
-      <form className="p-8 space-y-8" onSubmit={handleSubmit}>
-        {!!err ? <p className="text-red-500 text-sm text-center">{err}</p> : ""}
+      <form className="p-8 space-y-8" onSubmit={formikHandleSubmit}>
+        {!!error ? (
+          <p className="text-red-500 text-sm text-center">{error}</p>
+        ) : (
+          ""
+        )}
         <div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Basic Information
